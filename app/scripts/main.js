@@ -34,8 +34,37 @@ var hasGetUserMedia = function() {
         navigator.mozGetUserMedia || navigator.msGetUserMedia);
 };
 
+var onGetUserMedia = function(stream) {
+    video.src = window.URL.createObjectURL(stream);
+    localMediaStream = stream;
+};
+
 var onFailSoHard = function(e) {
     console.log('エラー!', e);
+};
+
+var calcColorDist = function(col1, col2) {
+    // 2乗和のルートで距離を出す
+    var diffR = col1[0] - col2[0];
+    var diffG = col1[1] - col2[1];
+    var diffB = col1[2] - col2[2];
+
+    return Math.sqrt((diffR * diffR) + (diffG * diffG) + (diffB * diffB));
+};
+
+var judge = function(colorDist) {
+
+    var threshold = 50;
+
+    var result = $('#judgement')[0];
+    if (colorDist <= threshold) {
+        result.textContent = 'OK';
+    } else {
+        result.textContent = 'NG';
+    }
+
+    // Debug
+    $('#colordump')[0].textContent = colorDist;
 };
 
 var snapshot = function() {
@@ -51,21 +80,15 @@ var snapshot = function() {
 
         document.querySelector('img').src = canvas.toDataURL('image/webp');
 
-
         // 撮影したものの中心のピクセルの色情報
         var capturedColor = ctx.getImageData(0, 0, 1, 1).data;
 
         // 問題の色情報
         var questionColor = questionContext.getImageData(50, 50, 1, 1).data;
 
-        // 2乗和のルートで距離を出す
-        var diffR = capturedColor[0] - questionColor[0];
-        var diffG = capturedColor[1] - questionColor[1];
-        var diffB = capturedColor[2] - questionColor[2];
-        var dist = Math.sqrt((diffR * diffR) + (diffG * diffG) + (diffB * diffB));
-
-        var dumpLabel = $('#colordump')[0];
-        dumpLabel.textContent = dist;
+        var dist = calcColorDist(capturedColor, questionColor);
+        judge(dist);
+        updateQuestion();
     }
 };
 
@@ -77,11 +100,6 @@ window.URL = window.URL || window.webkitURL;
 navigator.getUserMedia  = navigator.getUserMedia || navigator.webkitGetUserMedia ||
                         navigator.mozGetUserMedia || navigator.msGetUserMedia;
 
-var onGetUserMedia = function(stream) {
-    video.src = window.URL.createObjectURL(stream);
-    localMediaStream = stream;
-};
-
 navigator.getUserMedia({video: true}, onGetUserMedia, onFailSoHard);
 
 updateQuestion();
@@ -89,5 +107,3 @@ updateQuestion();
 $('#capture').click(function() {
     snapshot();
 });
-
-
