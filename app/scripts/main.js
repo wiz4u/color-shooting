@@ -7,11 +7,11 @@ var localMediaStream = null;
 
 // { colorName, R, G, B }
 var colors = [
-  { name : 'blue',   R : 0,    G : 0,    B : 0xff },
-  { name : 'red' ,   R : 0xff, G : 0,    B : 0 },
-  { name : 'yellow', R : 0xff, G : 0xff, B : 0 },
-  { name : 'orange', R : 0xff, G : 0xa5, B : 0 },
-  { name : 'green',  R : 0,    G : 0x80, B : 0 }
+    { name : 'blue',   R : 0,    G : 0,    B : 0xff },
+    { name : 'red' ,   R : 0xff, G : 0,    B : 0 },
+    { name : 'yellow', R : 0xff, G : 0xff, B : 0 },
+    { name : 'orange', R : 0xff, G : 0xa5, B : 0 },
+    { name : 'green',  R : 0,    G : 0x80, B : 0 }
 ];
 
 var currentIndex = 0;
