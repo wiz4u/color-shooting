@@ -43,6 +43,52 @@ var onFailSoHard = function(e) {
     console.log('エラー!', e);
 };
 
+var calcColorDistInHSV = function (col1, col2) {
+    var _rgb2hsv = function (rgb) {
+        var r = rgb.r,
+            g = rgb.g,
+            b = rgb.b,
+            h, s, v;
+        var max = Math.max(r, g, b);
+        var min = Math.min(r, g, b);
+
+        // h
+        if (max === min) {
+            h = 0;
+        } else if (max === r) {
+            h = (60 * (g - b) / (max - min) + 360) % 360;
+        } else if (max === g) {
+            h = (60 * (b - r) / (max - min)) + 120;
+        } else if (max === b) {
+            h = (60 * (r - g) / (max - min)) + 240;
+        }
+
+        // s
+        if (max === 0) {
+            s = 0;
+        } else {
+            s = (255 * ((max - min) / max));
+        }
+
+        // v
+        v = max;
+
+        return {h: h, s: s, v: v};
+    };
+
+    var hsv1 = _rgb2hsv({r: col1[0], g: col1[1], b: col1[2]});
+    var hsv2 = _rgb2hsv({r: col2[0], g: col2[1], b: col2[2]});
+
+    var MAX_DIFF_H = 180;
+    var MAX_DIFF_S = 255;
+    var SCALE_H = 5;
+    var SCALE_S = 1;
+    var diffH = Math.abs(hsv1.h - hsv2.h);
+    var diffS = Math.abs(hsv1.s - hsv2.s);
+
+    return SCALE_H * diffH / MAX_DIFF_H + SCALE_S * diffS / MAX_DIFF_S;
+};
+
 var calcColorDist = function(col1, col2) {
     // 2乗和のルートで距離を出す
     var diffR = col1[0] - col2[0];
@@ -54,7 +100,7 @@ var calcColorDist = function(col1, col2) {
 
 var judge = function(colorDist) {
 
-    var threshold = 50;
+    var threshold = 1; //50;
 
     var result = $('#judgement')[0];
     if (colorDist <= threshold) {
@@ -86,7 +132,7 @@ var snapshot = function() {
         // 問題の色情報
         var questionColor = questionContext.getImageData(50, 50, 1, 1).data;
 
-        var dist = calcColorDist(capturedColor, questionColor);
+        var dist = calcColorDistInHSV(capturedColor, questionColor);
         judge(dist);
         updateQuestion();
     }
